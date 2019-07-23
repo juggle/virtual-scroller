@@ -1,0 +1,37 @@
+{
+  "name": "@juggle/virtual-scroller",
+  "version": "0.0.1",
+  "description": "High performance virtual list/scroller for web",
+  "main": "virtual-scroller.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juggle/virtual-scroller.git"
+  },
+  "keywords": [
+    "virtual",
+    "list",
+    "scroll",
+    "scroller",
+    "view",
+    "window",
+    "viewport",
+    "virtualized",
+    "virtualised"
+  ],
+  "author": "Juggle",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/juggle/virtual-scroller/issues"
+  },
+  "homepage": "https://github.com/juggle/virtual-scroller#readme",
+  "dependencies": {
+    "@juggle/resize-observer": "^2.2.1",
+    "lit-element": "^2.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^3.5.3"
+  }
+}
