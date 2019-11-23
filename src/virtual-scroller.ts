@@ -1,6 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import { ResizeObserver } from '@juggle/resize-observer';
 import { ResizeObserverSize } from '@juggle/resize-observer/lib/ResizeObserverSize';
+import { HTMLVirtualCollection } from './HTMLCollection';
 
 window.addEventListener('error', (e) => {
   console.error(e.message);
@@ -21,10 +22,10 @@ class VirtualScroller extends LitElement {
   private _renderCount: number = 0;
   private _translateY: number = 0;
   private _approxScrollHeight: number = 0;
-  private _children: HTMLElement[] = [];
 
   constructor () {
     super();
+    this._overrideChildren();
     this.addEventListener('scroll', () => this._onScroll());
   }
 
@@ -68,6 +69,12 @@ class VirtualScroller extends LitElement {
     `;
   }
 
+  _overrideChildren () {
+    Object.defineProperty(this, 'children', {
+      value: new HTMLVirtualCollection()
+    });
+  }
+
   _resize (size: ResizeObserverSize) {
     this._width = size.inlineSize;
     this._height = size.blockSize;
@@ -79,25 +86,47 @@ class VirtualScroller extends LitElement {
     this._calc();
   }
 
+  get _children () {
+    return this.children as HTMLVirtualCollection;
+  }
+
   append (children: HTMLElement[]) {
-    for (let i = 0; i < children.length; i += 1) {
-      this._children.push(children[i]);
-    }
+    this._children.splice(this._children.length, 0, ...children);
     this._calc();
+  }
+
+  appendChild (child: HTMLElement) {
+    this._children.push(child);
+    this._calc();
+  }
+
+  removeChild (child: HTMLElement) {
+    const index = this._children.indexOf(child);
+    index !== -1 && this._children.splice(index, 1);
+    this._calc();
+  }
+
+  _appendActualChild (child: HTMLElement) {
+    super.appendChild(child);
+  }
+
+  _clearActualChildren () {
+    while (super.children.length) {
+      const child = super.removeChild(super.firstElementChild);
+      child.style.removeProperty('transform');
+    }
   }
 
   _calc () {
     const approxItemHeight = 80;
     this._approxScrollHeight = approxItemHeight * this._children.length;
     this._renderCount = this._height / approxItemHeight + 4;
-    this.innerHTML = '';
+    this._clearActualChildren();
     const startIndex = Math.floor((this._children.length - 1) * this._scrollPercentage);
-    const els = this._children.slice(startIndex, startIndex + this._renderCount);
-    for (let el of els) {
+    this._children.slice(startIndex, startIndex + this._renderCount).forEach(el => {
       el.style.transform = `translateY(${startIndex * approxItemHeight}px)`;
-      this.appendChild(el);
-    }
-    this.update();
+      this._appendActualChild(el);
+    });
   }
 }
 
