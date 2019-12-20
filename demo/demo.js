@@ -12,7 +12,7 @@ const h = (tag, attrs, text) => {
   return tag;
 }
 
-const data = Array(100000).fill('Hello').map((text, i) => {
+const data = Array(10000).fill('Hello').map((text, i) => {
   const item = h('div', { class: i % 2 ? 'even' : 'odd' });
   const img = h('img', { src: imgSrc });
   const detail = h('div', { class: 'text' });

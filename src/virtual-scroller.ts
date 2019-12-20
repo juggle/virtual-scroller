@@ -22,6 +22,8 @@ class VirtualScroller extends LitElement {
   private _renderCount: number = 0;
   private _translateY: number = 0;
   private _approxScrollHeight: number = 0;
+  private _rangeStart = 0;
+  private _rangeEnd = 0;
 
   constructor () {
     super();
@@ -119,14 +121,21 @@ class VirtualScroller extends LitElement {
 
   _calc () {
     const approxItemHeight = 80;
+    const prevRangeStart = this._rangeStart;
+    const prevRangeEnd = this._rangeEnd;
     this._approxScrollHeight = approxItemHeight * this._children.length;
-    this._renderCount = this._height / approxItemHeight + 4;
+    this._renderCount = this._height / approxItemHeight + 8;
+    this._rangeStart = Math.floor((this._children.length - 1) * this._scrollPercentage);
+    this._rangeEnd = this._rangeStart + this._renderCount;
+    if (this._rangeStart === prevRangeStart && this._rangeEnd === prevRangeEnd) {
+      return;
+    }
     this._clearActualChildren();
-    const startIndex = Math.floor((this._children.length - 1) * this._scrollPercentage);
-    this._children.slice(startIndex, startIndex + this._renderCount).forEach(el => {
-      el.style.transform = `translateY(${startIndex * approxItemHeight}px)`;
+    this._children.slice(this._rangeStart, this._rangeEnd).forEach(el => {
+      this._translateY = this._rangeStart * approxItemHeight;
       this._appendActualChild(el);
     });
+    this.update();
   }
 }
 
